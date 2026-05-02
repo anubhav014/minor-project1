@@ -45,6 +45,11 @@ public class Student {
 
     @Enumerated(value = EnumType.STRING)
     private StudentStatus status;
+
+    @JoinColumn
+    @OneToOne
+    @JsonIgnoreProperties("student") ///  to avoid cyclic dependencies.
+    private User user;
     /**
      * I had thought of these properties as well, however, they somehow don't fit.
      * If you see, 1 book can be issued to 1 student therefore it's good to have this property kept in Book.

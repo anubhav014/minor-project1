@@ -3,18 +3,12 @@ package com.example.minor_project1.services;
 import com.example.minor_project1.dtos.CreateStudentRequest;
 import com.example.minor_project1.dtos.GetStudentsDetailsResponse;
 import com.example.minor_project1.dtos.UpdateStudentRequest;
-import com.example.minor_project1.models.Book;
-import com.example.minor_project1.models.Student;
-import com.example.minor_project1.models.StudentStatus;
+import com.example.minor_project1.models.*;
 import com.example.minor_project1.repositories.StudentRepository;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.util.JSONPObject;
-
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class StudentService {
@@ -31,13 +25,27 @@ public class StudentService {
      * */
     BookService bookService;
 
-    StudentService(StudentRepository studentRepository, BookService bookService){
+    UserService userService;
+
+    StudentService(StudentRepository studentRepository, BookService bookService, UserService userService){
         this.studentRepository = studentRepository;
         this.bookService = bookService;
+        this.userService = userService;
     }
 
     public Integer create(CreateStudentRequest createStudentRequest){
+        /**
+         * 1. Encode the password before storing
+         * 2. We will have to attach the authorities
+         * 3. We need to create the user
+         * 4. Attach the userId to the student (FK association)
+         * */
+
         Student student = createStudentRequest.mapToStudent();
+        User user =  this.userService.create(student.getUser(), Authority.STUDENT);
+
+        student.setUser(user) ;
+
         Student newStudent =  this.studentRepository.save(student);
         return newStudent.getId();
     }

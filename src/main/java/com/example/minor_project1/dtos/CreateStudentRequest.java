@@ -1,6 +1,7 @@
 package com.example.minor_project1.dtos;
 
 import com.example.minor_project1.models.Student;
+import com.example.minor_project1.models.User;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -34,11 +35,29 @@ public class CreateStudentRequest {
     @Column(length = 10)
     private String mobile;
 
+    /**
+     * For Spring security ----- sign up, I also need:
+     * username
+     * password
+     * */
+
+    @NotBlank
+    private String username;
+
+    @NotBlank
+    private String password;
+
     public Student mapToStudent(){
         return Student.builder()
                 .name(this.name)
                 .email(this.email)
                 .mobile(this.mobile)
+                .user(
+                        User.builder() /// Since this is a DTO, we won't map the authorities.
+                                .username(this.username)
+                                .password(this.password)
+                                .build()
+                )
                 .build();
     }
 }

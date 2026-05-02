@@ -3,7 +3,6 @@ package com.example.minor_project1.controllers;
 import com.example.minor_project1.dtos.CreateStudentRequest;
 import com.example.minor_project1.dtos.GetStudentsDetailsResponse;
 import com.example.minor_project1.dtos.UpdateStudentRequest;
-import com.example.minor_project1.models.Student;
 import com.example.minor_project1.services.StudentService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,7 @@ public class StudentController {
     }
 
     /// To add a student to the library
-    @PostMapping("/create")
+    @PostMapping("/create") /// Similar to /signup
     public Integer createStudent(@Valid @RequestBody CreateStudentRequest createStudentRequest){
         return this.studentService.create(createStudentRequest);
     }
