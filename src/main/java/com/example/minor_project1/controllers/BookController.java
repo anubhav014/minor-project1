@@ -22,6 +22,7 @@ public class BookController {
         this.bookService.create(createBookRequest);
     }
 
+    /// For this GET request we only need to update the Authorization, nothing else needs to be done. Update SecurityFilterChain.
     @GetMapping("/{bookId}")
     public Book getBookById(@PathVariable("bookId") Integer bookId){
         return this.bookService.getBookId(bookId);
