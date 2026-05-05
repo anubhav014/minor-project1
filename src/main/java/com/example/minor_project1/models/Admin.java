@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /// Like User, creating this Admin class to integrate spring-security
@@ -15,7 +16,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Admin {
+public class Admin implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

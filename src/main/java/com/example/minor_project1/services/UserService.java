@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class UserService implements UserDetailsService {
 
     private UserRepository userRepository;
-    private PasswordEncoder passwordEncoder;
+   private PasswordEncoder passwordEncoder;
 
     UserService(UserRepository userRepository, PasswordEncoder passwordEncoder){
         this.userRepository = userRepository;
@@ -32,8 +32,8 @@ public class UserService implements UserDetailsService {
     }
 
     public User create(User user, Authority authority){
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
+        //String encodedPassword = passwordEncoder.encode(user.getPassword());
+        //user.setPassword(encodedPassword);
         /***
          * How to set the authority???
          * This is a generic function of creating a user. Here, we can't do ---> user.setAuthority()

@@ -4,6 +4,7 @@ import com.example.minor_project1.dtos.CreateStudentRequest;
 import com.example.minor_project1.dtos.GetStudentsDetailsResponse;
 import com.example.minor_project1.dtos.UpdateStudentRequest;
 import com.example.minor_project1.models.*;
+import com.example.minor_project1.repositories.StudentCacheRepository;
 import com.example.minor_project1.repositories.StudentRepository;
 import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class StudentService {
     ObjectMapper mapper = new ObjectMapper();
 
     StudentRepository studentRepository;
+    StudentCacheRepository studentCacheRepository;
     /**
      * To get the unidirectional relationship working, we need the StudentService talk to the BookService and gather the details of Book.
      * Also note that, the StudentService must not talk to the BookRepository directly bypassing the BookService.
@@ -27,10 +29,11 @@ public class StudentService {
 
     UserService userService;
 
-    StudentService(StudentRepository studentRepository, BookService bookService, UserService userService){
+    StudentService(StudentRepository studentRepository, BookService bookService, UserService userService, StudentCacheRepository studentCacheRepository){
         this.studentRepository = studentRepository;
         this.bookService = bookService;
         this.userService = userService;
+        this.studentCacheRepository = studentCacheRepository;
     }
 
     public Integer create(CreateStudentRequest createStudentRequest){
@@ -50,6 +53,14 @@ public class StudentService {
         return newStudent.getId();
     }
 
+    /**
+     * Add Cache to fetch the students -
+     * 1. Fetch the student details in the cache for a given studentId - 1ms
+     * 2. If the student details exist, then return from here itself - 10ms
+     * 3. If the student details doesn't exist, then fetch the details from the DB - 400ms
+     * 4. Save in the cache for future scenarios - 100ms
+     * 5. Return the data retrieved from the cache to the client - 10ms
+     * */
     public GetStudentsDetailsResponse getStudentsDetails(Integer studentId, boolean requireBookList){
 
         //List<Book> bookList = null;
@@ -61,8 +72,28 @@ public class StudentService {
 //        if(requireBookList){
 //            bookList = this.bookService.getBooksByStudentId(studentId);
 //        }
-        Student student = this.studentRepository.findById(studentId).orElse(null);
+
+        /// Now, we will first try getting from the cache.
+        /// This is a cache call
+        Student student = this.studentCacheRepository.get(studentId);
+
+        if(student != null){
+            return GetStudentsDetailsResponse
+                    .builder()
+                    .student(student)
+                    .bookList(student.getBookList())
+                    .build();
+        }
+
+        /// Cache Miss:
+        /// 1. Make a DB call
+        student = this.studentRepository.findById(studentId).orElse(null);
         //List<Book> bookList = this.bookService.getBooksByStudentId(studentId);
+
+        /// 2. Insert into cache
+        this.studentCacheRepository.add(student);
+
+        // TODO: Make this add in the cache call in a parallel thread : i.e. currently on a miss the DB call and a Cache add are sequential. They could be parallel operation.
 
         return GetStudentsDetailsResponse.builder()
                 .student(student)
